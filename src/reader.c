@@ -9,6 +9,7 @@
 #include "../inc/status.h"
 #include "../inc/buffer.h"
 #include "../inc/buffer_types.h"
+#include "../inc/log.h"
 
 
 int read_file(const char* file_path, struct buffer* buf)
@@ -20,7 +21,7 @@ int read_file(const char* file_path, struct buffer* buf)
         fd = open(file_path, O_RDONLY);
         if (fd == CCSVCUBE_STATUS_FAILED) {
                 /* File failed to open, get the error code and report to user */
-                fprintf(stdout, "%s\n", strerror(errno));
+                LOG_MESSAGE_ARGS("%s\n", strerror(errno));
                 goto ERROR_HANDLER;
         }
 
@@ -29,7 +30,7 @@ int read_file(const char* file_path, struct buffer* buf)
         buf_sz = lseek(fd, 0, SEEK_END);
 
         if (buf_sz == 0) {
-                fprintf(stdout, "%s\n", "File size is zero");
+                LOG_MESSAGE("File size is zero");
                 goto ERROR_HANDLER;
         }
 
@@ -39,10 +40,11 @@ int read_file(const char* file_path, struct buffer* buf)
 
         read_bytes = read(fd, buf->buf, buf_sz);
         if (read_bytes < buf_sz) {
-                fprintf(stdout, "Number of bytes read (%ul) does not match expected\n", read_bytes);
+                LOG_MESSAGE_ARGS("Number of bytes read (%ul) does not match expected\n", read_bytes);
                 goto ERROR_HANDLER;
         }
 
+        LOG_MESSAGE_ARGS("File %s read successfully", file_path);
         close(fd);
         return CCSVCUBE_STATUS_SUCCESS;
 
