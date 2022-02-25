@@ -5,15 +5,21 @@
 #include "../inc/reader.h"
 #include "../inc/log.h"
 #include "../inc/status.h"
+#include "../inc/geojson.h"
 #include "json-c/json.h"
 
 #define FILE_PATH "./pipeswithcriticandcapa.geojson"
-
 int main(int argc, char** argv)
 {
         struct buffer buf;
         const char tmp_str[] = "This is a string";
         json_object *jobj = NULL;
+
+        LOG_MESSAGE_ARGS("Number of arguments pased: %i", argc);
+        if (argc < 2) {
+                LOG_MESSAGE("Please pass the file name as an argument");
+                return CCSVCUBE_STATUS_FAILED;
+        }
 
         LOG_MESSAGE("Starting test program");
         /* initialise the buffer  */
@@ -24,23 +30,19 @@ int main(int argc, char** argv)
 
         destroy_buffer(&buf);
 
-        /* Read the file and show the contents */
-        LOG_MESSAGE("Testing file reader");
-        if (read_file(FILE_PATH, &buf) == CCSVCUBE_STATUS_SUCCESS) {
-                fprintf(stdout, "Buffer contents %s\n", buf.buf);
-                destroy_buffer(&buf);
-        }
-
         LOG_MESSAGE("Testing JSON reader");
-        if (read_json_file(FILE_PATH, &buf, &jobj) == CCSVCUBE_STATUS_FAILED) {
+        if (read_json_file(argv[1], &buf, &jobj) == CCSVCUBE_STATUS_FAILED) {
                 LOG_MESSAGE("Failed to parse json");
                 destroy_buffer(&buf);
                 return CCSVCUBE_STATUS_FAILED;
         }
 
+        LOG_MESSAGE("Splitting into multiple geojson files");
+        geojson_split_into_multiples(jobj);
 
 
         LOG_MESSAGE("Complete Test");
 
+        destroy_buffer(&buf);
         return CCSVCUBE_STATUS_SUCCESS;
 }
