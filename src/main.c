@@ -14,6 +14,7 @@ int main(int argc, char** argv)
         struct buffer buf;
         const char tmp_str[] = "This is a string";
         json_object *jobj = NULL;
+        struct geojson geo;
 
         LOG_MESSAGE_ARGS("Number of arguments pased: %i", argc);
         if (argc < 2) {
@@ -37,9 +38,13 @@ int main(int argc, char** argv)
                 return CCSVCUBE_STATUS_FAILED;
         }
 
-        LOG_MESSAGE("Splitting into multiple geojson files");
-        geojson_split_into_multiples(jobj);
+        LOG_MESSAGE("Initialising geojson object");
+        geojson_init(&geo);
 
+        LOG_MESSAGE("Splitting into multiple geojson files");
+        geojson_split_into_multiples(&geo, jobj);
+
+        geojson_free(&geo);
 
         LOG_MESSAGE("Complete Test");
 
