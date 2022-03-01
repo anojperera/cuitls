@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "../inc/buffer_types.h"
 #include "../inc/buffer.h"
 #include "../inc/reader.h"
@@ -40,6 +41,14 @@ int main(int argc, char** argv)
 
         LOG_MESSAGE("Initialising geojson object");
         geojson_init(&geo);
+
+        if (argc > 2) {
+                geo.base_file = argv[2];
+        }
+
+        if (argc > 3) {
+                geo.page_sz = atoi(argv[3]);
+        }
 
         LOG_MESSAGE("Splitting into multiple geojson files");
         geojson_split_into_multiples(&geo, jobj);
