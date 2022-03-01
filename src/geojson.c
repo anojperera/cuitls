@@ -12,6 +12,8 @@
 #include "json-c/json_types.h"
 #include "uthash/src/utarray.h"
 
+#define GEOJSON_PLR_BUFFER 16
+
 static void init_json_arr(void* etl);
 static void dtor_json_arr(void *etl);
 static void ctor_json_arr(void *dst, const void *src);
@@ -46,6 +48,7 @@ int geojson_split_into_multiples(struct geojson *geojson, json_object *obj)
         json_bool stat;
         size_t arr_sz = 0;
         size_t i = 0;
+        char *t_plr;
 
         struct geojson_filter *filter = NULL;
         struct geojson_filter *entry = NULL;
@@ -94,25 +97,38 @@ int geojson_split_into_multiples(struct geojson *geojson, json_object *obj)
                 stat = json_object_object_get_ex(prop, GEOJSON_PLR_KEY, &plr);
                 if (!stat) {
                         LOG_MESSAGE_ARGS("Unable to get property %s", GEOJSON_PLR_KEY);
-                        continue;
-                }
-
-
-                plr_val = json_object_get_string(plr);
-                if (plr_val) {
-                        LOG_MESSAGE_ARGS("PLR for arr element %u: %s", i, plr_val);
                 }
 
                 entry = NULL;
-                HASH_FIND_STR(filter, plr_val, entry);
+                if (stat) {
+                        plr_val = json_object_get_string(plr);
+                        if (plr_val) {
+                                LOG_MESSAGE_ARGS("PLR for arr element %u: %s", i, plr_val);
+                        }
+                        HASH_FIND_STR(filter, plr_val, entry);
+                } else {
+                        plr_val = NULL;
+                }
+
+
                 if (!entry) {
                         /* If the entry is NULL then add a new one */
                         entry = (struct geojson_filter *)malloc(
                                 sizeof(struct geojson_filter));
                         entry->id = i;
-                        entry->name = plr_val;
                         entry->ptr = elm;
                         entry->arr = NULL;
+                        if (!plr_val) {
+                                t_plr = (char *)malloc(GEOJSON_PLR_BUFFER);
+                                memset(t_plr, 0, GEOJSON_PLR_BUFFER);
+                                sprintf(t_plr, "%ul", i);
+                                entry->name = t_plr;
+                                entry->aloc_flg = 1;
+                        } else {
+                                entry->aloc_flg = 0;
+                                entry->name = plr_val;
+                        }
+
                         /* Add to the collection */
                         HASH_ADD_KEYPTR(hh, filter, entry->name, strlen(entry->name), entry);
                 } else {
@@ -155,13 +171,20 @@ int geojson_free(struct geojson *geojson)
 
         LOG_MESSAGE("Freeing allocated");
         entry = NULL;
+
         /* free the hash table contents */
         HASH_ITER(hh, filter, entry, tmp) {
-
           if (entry->arr) {
-            utarray_free(entry->arr);
-            entry->arr = NULL;
+                  utarray_free(entry->arr);
+                  entry->arr = NULL;
           }
+
+          if (entry->aloc_flg && entry->name)
+            free(entry->name);
+
+          entry->ptr = NULL;
+          entry->name = NULL;
+
           HASH_DEL(filter, entry);
           free(entry);
           entry = NULL;
@@ -258,7 +281,7 @@ static int geojson_write_file(struct geojson* geojson)
                   LOG_MESSAGE("Creating new JSON array");
                   obj = json_object_new_array_ext(geojson->page_sz);
 
-                  sprintf(file_name_buff, "%s-%u.json", geojson->base_file,
+                  sprintf(file_name_buff, "%s-%u.geojson", geojson->base_file,
                           ++page_cnt);
 
                   LOG_MESSAGE_ARGS("File name: %s", file_name_buff);
