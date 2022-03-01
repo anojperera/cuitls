@@ -18,8 +18,9 @@ typedef struct {
 } json_object_ut_t;
 
 struct geojson_filter {
-        const char *name;
+        char *name;
         int id;
+        int aloc_flg;
         json_object *ptr;
         UT_array *arr;
         UT_hash_handle hh;
