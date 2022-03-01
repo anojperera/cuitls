@@ -247,6 +247,7 @@ static int geojson_write_file(struct geojson* geojson)
         struct geojson_filter *tmp = NULL;
         array_list *arr = NULL;
 
+        json_object *parent = NULL;
         json_object *obj = NULL;
         size_t num_pages = (size_t)geojson->total / geojson->page_sz;
         if (geojson->total % geojson->page_sz)
@@ -267,6 +268,7 @@ static int geojson_write_file(struct geojson* geojson)
         memset(file_name_buff, 0, file_len);
 
         LOG_MESSAGE_ARGS("Hash table contains %i entries", HASH_COUNT(filter));
+        parent = json_object_new_object();
 
         HASH_ITER(hh, filter, entry, tmp) {
 
@@ -274,7 +276,8 @@ static int geojson_write_file(struct geojson* geojson)
               json_object_array_length(obj) > 0) {
             LOG_MESSAGE_ARGS("Wrigin JSON array to file: %s for page %u",
                              file_name_buff, page_cnt);
-            json_object_to_file(file_name_buff, obj);
+            json_object_object_add(parent, "features", obj);
+            json_object_to_file(file_name_buff, parent);
           }
 
           if (obj == NULL || !(cnt % geojson->page_sz)) {
@@ -302,7 +305,8 @@ static int geojson_write_file(struct geojson* geojson)
                                  file_name_buff,
                                  page_cnt,
                                  json_object_array_length(obj));
-                json_object_to_file(file_name_buff, obj);
+                json_object_object_add(parent, "features", obj);
+                json_object_to_file(file_name_buff, parent);
         }
 
          free(file_name_buff);
