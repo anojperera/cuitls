@@ -14,7 +14,7 @@ int colref_init(struct colref *obj, const char* res, const char *col)
 
         init_buffer(&obj->resource, len_res, buffer_type_str);
         init_buffer(&obj->colref, len_col, buffer_type_str);
-        
+
         buffer_set_value(&obj->resource, res, len_res);
         buffer_set_value(&obj->colref, col, len_col);
 
@@ -23,14 +23,14 @@ int colref_init(struct colref *obj, const char* res, const char *col)
 
 void colref_free(struct colref *obj)
 {
-        destroy_buffer(&obj->resouce);
+        destroy_buffer(&obj->resource);
         destroy_buffer(&obj->colref);
 }
 
 const char * colref_get_resource(struct colref *obj)
 {
-        if (obj->resouce.init_flag) {
-                return (char*) obj->resouce.buf;
+        if (obj->resource.init_flag) {
+                return (char*) obj->resource.buf;
         } else {
                 return NULL;
         }
