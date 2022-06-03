@@ -4,16 +4,14 @@
 #define __LIST_H__
 
 #include <stdlib.h>
-
+#include "uthash/utarray.h"
 #include "buffer.h"
 
 struct list {
   unsigned int init_flg;
-  struct buffer buf;
-  struct list* prev;
-  struct list* next;
+  UT_array* arr;
+  size_t count;
 };
-
 
 /*
  * Initialise and Delete Methods
@@ -25,14 +23,13 @@ void list_delete(struct list* list);
 /*
  * Add and remove Methods
  */
-int list_add_item(struct list* list, void* obj);
+int list_add_item(struct list* list, void* obj, size_t sz);
 int list_remove_item(struct list* list, void *obj);
 
 /*
  * Get items
  */
-const struct list* list_get_item(struct list *list, unsigned int ix);
-unsigned int list_get_count(struct list* list);
-
+void* list_get_item(struct list* list, size_t ix);
+size_t list_get_item_count(struct list* list);
 
 #endif    /* __LIST_H__ */
