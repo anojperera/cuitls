@@ -1,6 +1,6 @@
-[submodule "src/json-c"]
-	path = external/json-c
+[submodule "externals/json-c"]
+	path = externals/json-c
 	url = git@github.com:json-c/json-c.git
-[submodule "src/uthash"]
-	path = external/uthash
+[submodule "externals/uthash"]
+	path = externals/uthash
 	url = git@github.com:troydhanson/uthash.git
