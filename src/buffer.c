@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../inc/status.h"
-#include "../inc/buffer.h"
+#include "inc/status.h"
+#include "inc/buffer.h"
 
 
 
@@ -17,6 +17,22 @@ int init_buffer(struct buffer* buf, size_t sz, enum buffer_type type)
         buf->sz = sz;
         buf->buf = malloc(sz);
         memset(buf->buf, 0, sz);
+
+        return CCSVCUBE_STATUS_SUCCESS;
+}
+
+int realoc_buffer(struct buffer *buf, void* value, size_t sz)
+{
+        void *ptr = realloc(buf->buf, sz + 1);
+        if ( ptr == NULL ) {
+                /*  Out of memory */
+                return CCSVCUBE_STATUS_FAILED;
+        }
+
+        buf->buf = ptr;
+        memcpy(&(buf->buf[buf->sz]), value, sz);
+        buf->sz += sz;
+        buf->buf[buf->sz] = 0;
 
         return CCSVCUBE_STATUS_SUCCESS;
 }

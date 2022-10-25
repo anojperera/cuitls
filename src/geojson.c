@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../inc/reader.h"
-#include "../inc/status.h"
+#include "inc/reader.h"
+#include "inc/status.h"
 
-#include "../inc/log.h"
+#include "inc/log.h"
 
-#include "../inc/geojson.h"
+#include "inc/geojson.h"
 #include "json-c/arraylist.h"
 #include "json-c/json_object.h"
 #include "json-c/json_types.h"
@@ -229,7 +229,7 @@ static int geojson_add_to_array(UT_array *arr, json_object *obj) {
   for (p = (json_object_ut_t *)utarray_front(arr); p != NULL;
        p = (json_object_ut_t *)utarray_next(arr, p)) {
 
-          if (p->obj != NULL) 
+          if (p->obj != NULL)
                   json_object_array_add(obj, p->obj);
   }
 

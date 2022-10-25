@@ -6,13 +6,15 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#include "../inc/status.h"
-#include "../inc/buffer.h"
-#include "../inc/buffer_types.h"
-#include "../inc/log.h"
+#include "inc/status.h"
+#include "inc/buffer.h"
+#include "inc/buffer_types.h"
+#include "inc/log.h"
 #include "json-c/json.h"
 #include "json-c/json_types.h"
 #include "json-c/json_tokener.h"
+
+#include <curl/curl.h>
 
 
 int read_file(const char* file_path, struct buffer* buf)
@@ -105,4 +107,35 @@ int read_json_file(const char* file_path, struct buffer* buf, json_object** obj)
 
         ERROR_HANDLER:
           return CCSVCUBE_STATUS_FAILED;
+}
+
+
+int read_remote_uri(const char* uri, struct buffer *buf)
+{
+        CURL *curl;
+        char curl_errbuf[CURL_ERROR_SIZE];
+        int err;
+
+        LOG_MESSAGE_ARGS("Getting data from %s", uri);
+        LOG_MESSAGE("Initialising CURL");
+
+        curl = curl_easy_init();
+        curl_easy_setopt(curl, CURLOPT_URL, uri);
+        curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, curl_errbuf);
+        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+        curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_cb);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, buf);
+
+        err = curl_easy_perform(curl);
+
+        if (!err) {
+                LOG_MESSAGE("CURL successfully downloaded the data");
+        } else {
+                LOG_MESSAGE_ARGS("Following error's occured while downloading data from %s: %", uri, curl_errbuf);
+        }
+
+        curl_easy_cleanup(curl);
+
+        return CCSVCUBE_STATUS_SUCCESS;
 }

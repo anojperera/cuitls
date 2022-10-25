@@ -6,4 +6,10 @@
 
 int read_file(const char *file_path, struct buffer *buf);
 int read_json_file(const char *file_path, struct buffer *buf, json_object **obj);
+
+
+/***
+ * Read content from a remote resource
+ */
+int read_remote_uri(const char* uri, struct buffer *buf);
 #endif	/* __READER_H__ */

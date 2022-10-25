@@ -2,7 +2,7 @@
 #define __BUFFER_H__
 
 #include <stdlib.h>
-#include "../inc/buffer_types.h"
+#include "buffer_types.h"
 
 struct buffer {
         unsigned char init_flag;
@@ -15,6 +15,11 @@ struct buffer {
  * Initialise the buffer
  */
 int init_buffer(struct buffer *buf, size_t sz, enum buffer_type type);
+
+/* **
+ * Adjust the buffer to the new size
+ */
+int realoc_buffer(struct buffer *buf, size_t sz);
 
 /***
  * Destroy the buffer and free memory

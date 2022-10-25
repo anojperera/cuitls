@@ -1,10 +1,10 @@
 /* Implementation of list class
  */
-#include "../inc/list.h"
-#include "../inc/buffer.h"
-#include "../inc/status.h"
+#include "inc/list.h"
+#include "inc/buffer.h"
+#include "inc/status.h"
 
-#include "../inc/uthash/utarray.h"
+#include "uthash/utarray.h"
 
 
 static void list_ut_copy(void *_dst, const void* _src)
