@@ -1,16 +1,16 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "inc/reader.h"
-#include "inc/status.h"
+#include "../inc/reader.h"
+#include "../inc/status.h"
 
-#include "inc/log.h"
+#include "../inc/log.h"
 
-#include "inc/geojson.h"
-#include "json-c/arraylist.h"
-#include "json-c/json_object.h"
-#include "json-c/json_types.h"
-#include "uthash/src/utarray.h"
+#include "../inc/geojson.h"
+#include <json-c/arraylist.h>
+#include <json-c/json_object.h>
+#include <json-c/json_types.h>
+#include <uthash/utarray.h>
 
 #define GEOJSON_PLR_BUFFER 16
 
@@ -121,7 +121,7 @@ int geojson_split_into_multiples(struct geojson *geojson, json_object *obj)
                         if (!plr_val) {
                                 t_plr = (char *)malloc(GEOJSON_PLR_BUFFER);
                                 memset(t_plr, 0, GEOJSON_PLR_BUFFER);
-                                sprintf(t_plr, "%ul", i);
+                                sprintf(t_plr, "%zu", i);
                                 entry->name = t_plr;
                                 entry->aloc_flg = 1;
                         } else {
@@ -284,7 +284,7 @@ static int geojson_write_file(struct geojson* geojson)
                   LOG_MESSAGE("Creating new JSON array");
                   obj = json_object_new_array_ext(geojson->page_sz);
 
-                  sprintf(file_name_buff, "%s-%u.geojson", geojson->base_file,
+                  sprintf(file_name_buff, "%s-%zu.geojson", geojson->base_file,
                           ++page_cnt);
 
                   LOG_MESSAGE_ARGS("File name: %s", file_name_buff);

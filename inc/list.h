@@ -1,11 +1,12 @@
 /* This is a class to handle lists */
 
-#ifdef __LIST_H__
+#ifndef __LIST_H__
 #define __LIST_H__
 
 #include <stdlib.h>
-#include "uthash/utarray.h"
 #include "buffer.h"
+
+#include "uthash/utarray.h"
 
 struct list {
   unsigned int init_flg;
@@ -23,7 +24,7 @@ void list_delete(struct list* list);
 /*
  * Add and remove Methods
  */
-int list_add_item(struct list* list, void* obj, size_t sz);
+int list_add_item(struct list* list, void* obj);
 int list_remove_item(struct list* list, void *obj);
 
 /*

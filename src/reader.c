@@ -6,16 +6,17 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#include "inc/status.h"
-#include "inc/buffer.h"
-#include "inc/buffer_types.h"
-#include "inc/log.h"
-#include "json-c/json.h"
-#include "json-c/json_types.h"
-#include "json-c/json_tokener.h"
+#include "../inc/status.h"
+#include "../inc/buffer.h"
+#include "../inc/buffer_types.h"
+#include "../inc/log.h"
+#include <json-c/json.h>
+#include <json-c/json_types.h>
+#include <json-c/json_tokener.h>
 
 #include <curl/curl.h>
 
+size_t write_cb(char *ptr, size_t size, size_t nmemb, void *userdata);
 
 int read_file(const char* file_path, struct buffer* buf)
 {
@@ -138,4 +139,15 @@ int read_remote_uri(const char* uri, struct buffer *buf)
         curl_easy_cleanup(curl);
 
         return CCSVCUBE_STATUS_SUCCESS;
+}
+
+
+size_t write_cb(char *ptr, size_t size, size_t nmemb, void *userdata)
+{
+        size_t realsize = size * nmemb;
+        struct buffer* buf = (struct buffer *) userdata;
+
+        realoc_buffer(buf, ptr, realsize);
+
+        return realsize;
 }

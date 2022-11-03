@@ -1,10 +1,10 @@
 /* Implementation of list class
  */
-#include "inc/list.h"
-#include "inc/buffer.h"
-#include "inc/status.h"
+#include "list.h"
+#include "../inc/buffer.h"
+#include "../inc/status.h"
 
-#include "uthash/utarray.h"
+#include <uthash/utarray.h>
 
 
 static void list_ut_copy(void *_dst, const void* _src)
@@ -12,7 +12,7 @@ static void list_ut_copy(void *_dst, const void* _src)
         struct buffer* dst = (struct buffer *) _dst;
         struct buffer* src = (struct buffer *) _src;
 
-        buffer_set_value(dst, src->buf, src->sz, src->type);
+        buffer_set_value(dst, src->buf, src->sz);
 }
 
 static void list_ut_destroy(void *_src)
@@ -35,10 +35,12 @@ int list_init(struct list* list)
 
 void list_delete(struct list* list)
 {
-        CUTILS_CHECK_INIT(list);
+        if(list->init_flg != CCSVCUBE_STATUS_SUCCESS) {
+                return;
+        }
         list->init_flg = CCSVCUBE_STATUS_FAILED;
         list->count = 0;
-        utarray_delete(list->arr);
+        utarray_free(list->arr);
 }
 
 

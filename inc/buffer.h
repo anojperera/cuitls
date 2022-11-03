@@ -19,7 +19,7 @@ int init_buffer(struct buffer *buf, size_t sz, enum buffer_type type);
 /* **
  * Adjust the buffer to the new size
  */
-int realoc_buffer(struct buffer *buf, size_t sz);
+int realoc_buffer(struct buffer *buf, void* value, size_t sz);
 
 /***
  * Destroy the buffer and free memory

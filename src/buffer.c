@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "inc/status.h"
-#include "inc/buffer.h"
+#include "../inc/status.h"
+#include "../inc/buffer.h"
 
 
 
@@ -32,7 +32,7 @@ int realoc_buffer(struct buffer *buf, void* value, size_t sz)
         buf->buf = ptr;
         memcpy(&(buf->buf[buf->sz]), value, sz);
         buf->sz += sz;
-        buf->buf[buf->sz] = 0;
+        memset(&buf->buf[buf->sz], 0, 1);
 
         return CCSVCUBE_STATUS_SUCCESS;
 }
