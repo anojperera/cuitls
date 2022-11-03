@@ -7,7 +7,7 @@
 #include "../inc/log.h"
 #include "../inc/status.h"
 #include "../inc/geojson.h"
-#include <json-c/json.h>
+#include "json-c/json.h"
 
 #define FILE_PATH "./pipeswithcriticandcapa.geojson"
 int main(int argc, char** argv)

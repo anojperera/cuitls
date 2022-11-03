@@ -10,9 +10,9 @@
 #include "../inc/buffer.h"
 #include "../inc/buffer_types.h"
 #include "../inc/log.h"
-#include <json-c/json.h>
-#include <json-c/json_types.h>
-#include <json-c/json_tokener.h>
+#include "json-c/json.h"
+#include "json-c/json_types.h"
+#include "json-c/json_tokener.h"
 
 #include <curl/curl.h>
 

@@ -7,10 +7,10 @@
 #include "../inc/log.h"
 
 #include "../inc/geojson.h"
-#include <json-c/arraylist.h>
-#include <json-c/json_object.h>
-#include <json-c/json_types.h>
-#include <uthash/utarray.h>
+#include "json-c/arraylist.h"
+#include "json-c/json_object.h"
+#include "json-c/json_types.h"
+#include "uthash/utarray.h"
 
 #define GEOJSON_PLR_BUFFER 16
 

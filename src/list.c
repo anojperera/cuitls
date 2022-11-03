@@ -1,10 +1,10 @@
 /* Implementation of list class
  */
-#include "list.h"
+#include "../inc/list.h"
 #include "../inc/buffer.h"
 #include "../inc/status.h"
 
-#include <uthash/utarray.h>
+#include "uthash/utarray.h"
 
 
 static void list_ut_copy(void *_dst, const void* _src)
@@ -49,6 +49,8 @@ int list_add_item(struct list* list, void* obj)
         CUTILS_CHECK_INIT(list);
         utarray_push_back(list->arr, obj);
         list->count++;
+
+        return CCSVCUBE_STATUS_SUCCESS;
 }
 
 
@@ -63,8 +65,9 @@ void* list_get_item(struct list* list, size_t ix)
 {
         struct buffer* buf = NULL;
         void *tmp = NULL;
-
-        CUTILS_CHECK_INIT(list);
+        if (list->init_flg != CCSVCUBE_STATUS_SUCCESS) {
+                return NULL;
+        }
 
         tmp = utarray_eltptr(list->arr, ix);
         if (!tmp)
