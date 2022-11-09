@@ -5,25 +5,24 @@ execute_process(COMMAND bash -c "mkdir -p build/json-c")
 execute_process(COMMAND bash -c "cd build/json-c && sh ../../externals/json-c/cmake-configure --enable-static && make")
 execute_process(COMMAND bash -c "cd build/json-c && cp -v ../../externals/json-c/*.h .")
 execute_process(COMMAND bash -c "cd build && ln -s ../externals/uthash/include uthash")
-add_executable(cutils
-  src/main.c
+add_executable(cutils_geo
+  src/geo/main.c
   src/buffer.c
   src/colref.c
   src/geojson.c
   src/list.c
-  src/main.c
   src/mapping.c
   src/reader.c
   build/json-c/libjson-c.a
   )
-target_include_directories(cutils PUBLIC
+target_include_directories(cutils_geo PUBLIC
   inc
   externals
   build
   build/json-c
   )
-target_link_directories(cutils PUBLIC
+target_link_directories(cutils_geo PUBLIC
   build/json-c
   )
-target_link_libraries(cutils PRIVATE curl)
-target_link_libraries(cutils PRIVATE json-c.a)
+target_link_libraries(cutils_geo PRIVATE curl)
+target_link_libraries(cutils_geo PRIVATE json-c.a)
