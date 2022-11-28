@@ -15,7 +15,7 @@ int web_main(int argc, char **argv);
 
 int main(int argc, char **argv)
 {
-        return geo_main(argc, argv);
+        return web_main(argc, argv);
 }
 
 int geo_main(int argc, char **argv)
@@ -69,9 +69,23 @@ int geo_main(int argc, char **argv)
         return CCSVCUBE_STATUS_SUCCESS;
 }
 
-int main_web(int argc, char **argv)
+int web_main(int argc, char **argv)
 {
-        LOG_MESSAGE("Starting web parser");
+        struct buffer buf;
+        int status = CCSVCUBE_STATUS_SUCCESS;
+
+        if (argc < 2) {
+                LOG_MESSAGE("Required arguments is not provided");
+                return CCSVCUBE_STATUS_FAILED;
+        }
+
+        LOG_MESSAGE_ARGS("Starting web parser for %s", argv[1]);
+
+        init_buffer(&buf, 20, buffer_type_str);
+        read_remote_uri(argv[1], &buf);
+
+        LOG_MESSAGE("Destroying buffer and cleaning up");
+        destroy_buffer(&buf);
 
         return CCSVCUBE_STATUS_SUCCESS;
 }
