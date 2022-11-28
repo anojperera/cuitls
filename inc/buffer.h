@@ -1,8 +1,8 @@
 #ifndef __BUFFER_H__
 #define __BUFFER_H__
 
-#include <stdlib.h>
 #include "buffer_types.h"
+#include <stdlib.h>
 
 struct buffer {
         unsigned char init_flag;
@@ -10,6 +10,9 @@ struct buffer {
         size_t sz;
         void *buf;
 };
+
+#define get_buffer(obj) (obj)->buf
+#define get_buffer_sz(obj) (obj)->sz
 
 /***
  * Initialise the buffer
@@ -19,7 +22,7 @@ int init_buffer(struct buffer *buf, size_t sz, enum buffer_type type);
 /* **
  * Adjust the buffer to the new size
  */
-int realoc_buffer(struct buffer *buf, void* value, size_t sz);
+int realoc_buffer(struct buffer *buf, void *value, size_t sz);
 
 /***
  * Destroy the buffer and free memory
@@ -31,4 +34,4 @@ void destroy_buffer(struct buffer *buf);
  */
 int buffer_set_value(struct buffer *buf, const void *value, size_t sz);
 
-#endif	/* __BUFFER_H__ */
+#endif /* __BUFFER_H__ */
