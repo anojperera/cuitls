@@ -4,6 +4,7 @@
 #include "../inc/log.h"
 #include "../inc/reader.h"
 #include "../inc/status.h"
+#include "../inc/writer.h"
 #include "json-c/json.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -73,19 +74,37 @@ int web_main(int argc, char **argv)
 {
         struct buffer buf;
         int status = CCSVCUBE_STATUS_SUCCESS;
+        char *uri, *fp;
 
-        if (argc < 2) {
+        if (argc < 3) {
                 LOG_MESSAGE("Required arguments is not provided");
                 return CCSVCUBE_STATUS_FAILED;
         }
 
-        LOG_MESSAGE_ARGS("Starting web parser for %s", argv[1]);
+        uri = argv[1];
+        fp = argv[2];
 
-        init_buffer(&buf, 20, buffer_type_str);
-        read_remote_uri(argv[1], &buf);
+        LOG_MESSAGE_ARGS("Starting web parser for %s", uri);
 
+        init_buffer(&buf, 20, buffer_type_unknown);
+        status = read_remote_uri(uri, &buf);
+
+        if (status == CCSVCUBE_STATUS_FAILED) {
+                LOG_MESSAGE("Unable to read the URL");
+                goto ERROR_HANDLER;
+        }
+
+        /* Write to the disk */
+        LOG_MESSAGE_ARGS("Writing data to file: %s", fp);
+        status = writer_write_file_blocking(&buf, fp);
+
+        if (status != CCSVCUBE_STATUS_SUCCESS) {
+                LOG_MESSAGE("Unable to write file");
+        }
+
+ERROR_HANDLER:
         LOG_MESSAGE("Destroying buffer and cleaning up");
         destroy_buffer(&buf);
 
-        return CCSVCUBE_STATUS_SUCCESS;
+        return status;
 }
