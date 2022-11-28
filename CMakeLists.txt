@@ -13,6 +13,7 @@ add_executable(cutils
   src/list.c
   src/mapping.c
   src/reader.c
+  src/writer.c
   build/json-c/libjson-c.a
   )
 target_include_directories(cutils PUBLIC
