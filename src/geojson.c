@@ -14,7 +14,7 @@
 
 #define GEOJSON_PLR_BUFFER 16
 
-static void init_json_arr(void* etl);
+static void init_json_arr(void *etl);
 static void dtor_json_arr(void *etl);
 static void ctor_json_arr(void *dst, const void *src);
 
@@ -22,7 +22,7 @@ static int geojson_write_file(struct geojson *geojson);
 static int geojson_add_to_array(UT_array *arr, json_object *obj);
 
 UT_icd geojson_json_icd = {sizeof(json_object_ut_t), init_json_arr,
-                               ctor_json_arr, dtor_json_arr};
+                           ctor_json_arr, dtor_json_arr};
 
 /* Intialise geojson structure */
 int geojson_init(struct geojson *geojson)
@@ -40,11 +40,11 @@ int geojson_init(struct geojson *geojson)
 int geojson_split_into_multiples(struct geojson *geojson, json_object *obj)
 {
         enum json_type jtype;
-        json_object* jarr = NULL;
-        json_object* elm = NULL;
+        json_object *jarr = NULL;
+        json_object *elm = NULL;
         json_object *prop = NULL;
         json_object *plr = NULL;
-        const char* plr_val = NULL;
+        const char *plr_val = NULL;
         json_bool stat;
         size_t arr_sz = 0;
         size_t i = 0;
@@ -67,10 +67,10 @@ int geojson_split_into_multiples(struct geojson *geojson, json_object *obj)
         LOG_MESSAGE_ARGS("Checking for %s", GEOJSON_FEATURES_KEY);
         stat = json_object_object_get_ex(obj, GEOJSON_FEATURES_KEY, &jarr);
         if (!stat) {
-                LOG_MESSAGE_ARGS("Unable to get the key %s", GEOJSON_FEATURES_KEY);
+                LOG_MESSAGE_ARGS("Unable to get the key %s",
+                                 GEOJSON_FEATURES_KEY);
                 goto ERROR_HANDLER;
         }
-
 
         LOG_MESSAGE("Checking for array count");
         arr_sz = json_object_array_length(jarr);
@@ -84,37 +84,38 @@ int geojson_split_into_multiples(struct geojson *geojson, json_object *obj)
                 if (elm == NULL)
                         continue;
 
-
                 /* Get properties */
-                stat = json_object_object_get_ex(elm, GEOJSON_PROPERTIES_KEY, &prop);
+                stat = json_object_object_get_ex(elm, GEOJSON_PROPERTIES_KEY,
+                                                 &prop);
                 if (!stat) {
-                        LOG_MESSAGE_ARGS("Unable to get property %s", GEOJSON_PROPERTIES_KEY);
+                        LOG_MESSAGE_ARGS("Unable to get property %s",
+                                         GEOJSON_PROPERTIES_KEY);
                         continue;
                 }
-
 
                 /* Get PLR */
                 stat = json_object_object_get_ex(prop, GEOJSON_PLR_KEY, &plr);
                 if (!stat) {
-                        LOG_MESSAGE_ARGS("Unable to get property %s", GEOJSON_PLR_KEY);
+                        LOG_MESSAGE_ARGS("Unable to get property %s",
+                                         GEOJSON_PLR_KEY);
                 }
 
                 entry = NULL;
                 if (stat) {
                         plr_val = json_object_get_string(plr);
                         if (plr_val) {
-                                LOG_MESSAGE_ARGS("PLR for arr element %u: %s", i, plr_val);
+                                LOG_MESSAGE_ARGS("PLR for arr element %u: %s",
+                                                 i, plr_val);
                         }
                         HASH_FIND_STR(filter, plr_val, entry);
                 } else {
                         plr_val = NULL;
                 }
 
-
                 if (!entry) {
                         /* If the entry is NULL then add a new one */
                         entry = (struct geojson_filter *)malloc(
-                                sizeof(struct geojson_filter));
+                            sizeof(struct geojson_filter));
                         entry->id = i;
                         entry->ptr = elm;
                         entry->arr = NULL;
@@ -130,22 +131,25 @@ int geojson_split_into_multiples(struct geojson *geojson, json_object *obj)
                         }
 
                         /* Add to the collection */
-                        HASH_ADD_KEYPTR(hh, filter, entry->name, strlen(entry->name), entry);
+                        HASH_ADD_KEYPTR(hh, filter, entry->name,
+                                        strlen(entry->name), entry);
                 } else {
                         /* If the array is NULL create it */
                         if (!entry->arr) {
-                                entry->arr = (UT_array*) malloc(sizeof(UT_array));
+                                entry->arr =
+                                    (UT_array *)malloc(sizeof(UT_array));
                                 utarray_init(entry->arr, &geojson_json_icd);
 
                                 if (entry->ptr) {
-                                  tmp_ut = (json_object_ut_t *)malloc(
-                                      sizeof(json_object_ut_t));
-                                  tmp_ut->obj = entry->ptr;
-                                  utarray_push_back(entry->arr, tmp_ut);
+                                        tmp_ut = (json_object_ut_t *)malloc(
+                                            sizeof(json_object_ut_t));
+                                        tmp_ut->obj = entry->ptr;
+                                        utarray_push_back(entry->arr, tmp_ut);
                                 }
                         }
 
-                        tmp_ut = (json_object_ut_t *) malloc(sizeof(json_object_ut_t));
+                        tmp_ut = (json_object_ut_t *)malloc(
+                            sizeof(json_object_ut_t));
                         tmp_ut->obj = elm;
                         utarray_push_back(entry->arr, tmp_ut);
                 }
@@ -159,7 +163,7 @@ int geojson_split_into_multiples(struct geojson *geojson, json_object *obj)
 
         return CCSVCUBE_STATUS_SUCCESS;
 
-ERROR_HANDLER :
+ERROR_HANDLER:
         return CCSVCUBE_STATUS_FAILED;
 }
 
@@ -173,21 +177,22 @@ int geojson_free(struct geojson *geojson)
         entry = NULL;
 
         /* free the hash table contents */
-        HASH_ITER(hh, filter, entry, tmp) {
-          if (entry->arr) {
-                  utarray_free(entry->arr);
-                  entry->arr = NULL;
-          }
+        HASH_ITER(hh, filter, entry, tmp)
+        {
+                if (entry->arr) {
+                        utarray_free(entry->arr);
+                        entry->arr = NULL;
+                }
 
-          if (entry->aloc_flg && entry->name)
-            free(entry->name);
+                if (entry->aloc_flg && entry->name)
+                        free(entry->name);
 
-          entry->ptr = NULL;
-          entry->name = NULL;
+                entry->ptr = NULL;
+                entry->name = NULL;
 
-          HASH_DEL(filter, entry);
-          free(entry);
-          entry = NULL;
+                HASH_DEL(filter, entry);
+                free(entry);
+                entry = NULL;
         }
 
         return CCSVCUBE_STATUS_SUCCESS;
@@ -198,7 +203,7 @@ static void init_json_arr(void *etl)
 {
         if (!etl)
                 return;
-        json_object_ut_t *tmp = (json_object_ut_t *) etl;
+        json_object_ut_t *tmp = (json_object_ut_t *)etl;
         tmp->obj = NULL;
 }
 
@@ -218,25 +223,27 @@ static void ctor_json_arr(void *_dst, const void *_src)
         if (!_dst || !_src)
                 return;
 
-        json_object_ut_t *dst = (json_object_ut_t *) _dst, *src = (json_object_ut_t *) _src;
+        json_object_ut_t *dst = (json_object_ut_t *)_dst,
+                         *src = (json_object_ut_t *)_src;
         dst->obj = src->obj ? src->obj : NULL;
 }
 
-static int geojson_add_to_array(UT_array *arr, json_object *obj) {
-  json_object_ut_t *p = NULL;
+static int geojson_add_to_array(UT_array *arr, json_object *obj)
+{
+        json_object_ut_t *p = NULL;
 
-  LOG_MESSAGE_ARGS("Iterating through the array with count %u", utarray_len(arr));
-  for (p = (json_object_ut_t *)utarray_front(arr); p != NULL;
-       p = (json_object_ut_t *)utarray_next(arr, p)) {
+        LOG_MESSAGE_ARGS("Iterating through the array with count %u",
+                         utarray_len(arr));
+        for (p = (json_object_ut_t *)utarray_front(arr); p != NULL;
+             p = (json_object_ut_t *)utarray_next(arr, p)) {
+                if (p->obj != NULL)
+                        json_object_array_add(obj, p->obj);
+        }
 
-          if (p->obj != NULL)
-                  json_object_array_add(obj, p->obj);
-  }
-
-  return CCSVCUBE_STATUS_SUCCESS;
+        return CCSVCUBE_STATUS_SUCCESS;
 }
 
-static int geojson_write_file(struct geojson* geojson)
+static int geojson_write_file(struct geojson *geojson)
 {
         size_t file_len = 0;
         size_t cnt = 0;
@@ -264,52 +271,53 @@ static int geojson_write_file(struct geojson* geojson)
         LOG_MESSAGE_ARGS("Page size: %u", geojson->page_sz);
         LOG_MESSAGE_ARGS("Total: %u", geojson->total);
 
-        file_name_buff = (char*) malloc(sizeof(char) * file_len);
+        file_name_buff = (char *)malloc(sizeof(char) * file_len);
         memset(file_name_buff, 0, file_len);
 
         LOG_MESSAGE_ARGS("Hash table contains %i entries", HASH_COUNT(filter));
         parent = json_object_new_object();
 
-        HASH_ITER(hh, filter, entry, tmp) {
+        HASH_ITER(hh, filter, entry, tmp)
+        {
+                if (obj && (cnt == geojson->page_sz * page_cnt) &&
+                    json_object_array_length(obj) > 0) {
+                        LOG_MESSAGE_ARGS(
+                            "Wrigin JSON array to file: %s for page %u",
+                            file_name_buff, page_cnt);
+                        json_object_object_add(parent, "features", obj);
+                        json_object_to_file(file_name_buff, parent);
+                }
 
-          if (obj && (cnt == geojson->page_sz * page_cnt) &&
-              json_object_array_length(obj) > 0) {
-            LOG_MESSAGE_ARGS("Wrigin JSON array to file: %s for page %u",
-                             file_name_buff, page_cnt);
-            json_object_object_add(parent, "features", obj);
-            json_object_to_file(file_name_buff, parent);
-          }
+                if (obj == NULL || !(cnt % geojson->page_sz)) {
+                        LOG_MESSAGE("Creating new JSON array");
+                        obj = json_object_new_array_ext(geojson->page_sz);
 
-          if (obj == NULL || !(cnt % geojson->page_sz)) {
-                  LOG_MESSAGE("Creating new JSON array");
-                  obj = json_object_new_array_ext(geojson->page_sz);
+                        sprintf(file_name_buff, "%s-%zu.geojson",
+                                geojson->base_file, ++page_cnt);
 
-                  sprintf(file_name_buff, "%s-%zu.geojson", geojson->base_file,
-                          ++page_cnt);
+                        LOG_MESSAGE_ARGS("File name: %s", file_name_buff);
+                }
 
-                  LOG_MESSAGE_ARGS("File name: %s", file_name_buff);
-          }
+                if (entry->arr) {
+                        LOG_MESSAGE("Related pipes encounted, handling array");
+                        geojson_add_to_array(entry->arr, obj);
+                } else {
+                        json_object_array_add(obj, entry->ptr);
+                }
 
-          if (entry->arr) {
-                  LOG_MESSAGE("Related pipes encounted, handling array");
-                  geojson_add_to_array(entry->arr, obj);
-          } else {
-                  json_object_array_add(obj, entry->ptr);
-          }
-
-          cnt++;
+                cnt++;
         }
 
         if (obj && json_object_array_length(obj) > 0) {
-                LOG_MESSAGE_ARGS("Wrigin JSON array to file: %s for page %u and object count: %u",
-                                 file_name_buff,
-                                 page_cnt,
+                LOG_MESSAGE_ARGS("Wrigin JSON array to file: %s for page %u "
+                                 "and object count: %u",
+                                 file_name_buff, page_cnt,
                                  json_object_array_length(obj));
                 json_object_object_add(parent, "features", obj);
                 json_object_to_file(file_name_buff, parent);
         }
 
-         free(file_name_buff);
+        free(file_name_buff);
 
-         return CCSVCUBE_STATUS_SUCCESS;
+        return CCSVCUBE_STATUS_SUCCESS;
 }

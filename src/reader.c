@@ -1,24 +1,24 @@
 #include <errno.h>
 #include <fcntl.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <stdio.h>
 
-#include "../inc/status.h"
 #include "../inc/buffer.h"
 #include "../inc/buffer_types.h"
 #include "../inc/log.h"
+#include "../inc/status.h"
 #include "json-c/json.h"
-#include "json-c/json_types.h"
 #include "json-c/json_tokener.h"
+#include "json-c/json_types.h"
 
 #include <curl/curl.h>
 
 size_t write_cb(char *ptr, size_t size, size_t nmemb, void *userdata);
 
-int read_file(const char* file_path, struct buffer* buf)
+int read_file(const char *file_path, struct buffer *buf)
 {
         int fd;
         off_t buf_sz;
@@ -43,11 +43,13 @@ int read_file(const char* file_path, struct buffer* buf)
 
         /* Reset and read the bites */
         lseek(fd, 0, SEEK_SET);
-        init_buffer(buf, buf_sz+1, buffer_type_str);
+        init_buffer(buf, buf_sz + 1, buffer_type_str);
 
         read_bytes = read(fd, buf->buf, buf_sz);
         if (read_bytes < buf_sz) {
-                LOG_MESSAGE_ARGS("Number of bytes read (%ul) does not match expected\n", read_bytes);
+                LOG_MESSAGE_ARGS(
+                    "Number of bytes read (%ul) does not match expected\n",
+                    read_bytes);
                 goto ERROR_HANDLER;
         }
 
@@ -67,9 +69,9 @@ ERROR_HANDLER:
         return CCSVCUBE_STATUS_FAILED;
 }
 
-int read_json_file(const char* file_path, struct buffer* buf, json_object** obj)
+int read_json_file(const char *file_path, struct buffer *buf, json_object **obj)
 {
-        struct json_tokener* tok = NULL;
+        struct json_tokener *tok = NULL;
         enum json_tokener_error jerr;
 
         LOG_MESSAGE("Opening JSON file");
@@ -91,7 +93,8 @@ int read_json_file(const char* file_path, struct buffer* buf, json_object** obj)
         } while ((jerr = json_tokener_get_error(tok)) == json_tokener_continue);
 
         if (jerr != json_tokener_success) {
-                LOG_MESSAGE_ARGS("Errors occured: %s", json_tokener_error_desc(jerr));
+                LOG_MESSAGE_ARGS("Errors occured: %s",
+                                 json_tokener_error_desc(jerr));
                 json_tokener_free(tok);
 
                 goto ERROR_HANDLER;
@@ -106,12 +109,11 @@ int read_json_file(const char* file_path, struct buffer* buf, json_object** obj)
 
         return CCSVCUBE_STATUS_SUCCESS;
 
-        ERROR_HANDLER:
-          return CCSVCUBE_STATUS_FAILED;
+ERROR_HANDLER:
+        return CCSVCUBE_STATUS_FAILED;
 }
 
-
-int read_remote_uri(const char* uri, struct buffer *buf)
+int read_remote_uri(const char *uri, struct buffer *buf)
 {
         CURL *curl;
         char curl_errbuf[CURL_ERROR_SIZE];
@@ -133,7 +135,9 @@ int read_remote_uri(const char* uri, struct buffer *buf)
         if (!err) {
                 LOG_MESSAGE("CURL successfully downloaded the data");
         } else {
-                LOG_MESSAGE_ARGS("Following error's occured while downloading data from %s: %", uri, curl_errbuf);
+                LOG_MESSAGE_ARGS("Following error's occured while downloading "
+                                 "data from %s: %",
+                                 uri, curl_errbuf);
         }
 
         curl_easy_cleanup(curl);
@@ -141,11 +145,10 @@ int read_remote_uri(const char* uri, struct buffer *buf)
         return CCSVCUBE_STATUS_SUCCESS;
 }
 
-
 size_t write_cb(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
         size_t realsize = size * nmemb;
-        struct buffer* buf = (struct buffer *) userdata;
+        struct buffer *buf = (struct buffer *)userdata;
 
         realoc_buffer(buf, ptr, realsize);
 

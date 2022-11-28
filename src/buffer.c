@@ -1,16 +1,14 @@
 /***
  * Generic buffer class
-*/
-#include <unistd.h>
+ */
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-#include "../inc/status.h"
 #include "../inc/buffer.h"
+#include "../inc/status.h"
 
-
-
-int init_buffer(struct buffer* buf, size_t sz, enum buffer_type type)
+int init_buffer(struct buffer *buf, size_t sz, enum buffer_type type)
 {
         buf->init_flag = CCSVCUBE_STATUS_SUCCESS;
         buf->type = type;
@@ -21,10 +19,10 @@ int init_buffer(struct buffer* buf, size_t sz, enum buffer_type type)
         return CCSVCUBE_STATUS_SUCCESS;
 }
 
-int realoc_buffer(struct buffer *buf, void* value, size_t sz)
+int realoc_buffer(struct buffer *buf, void *value, size_t sz)
 {
         void *ptr = realloc(buf->buf, sz + 1);
-        if ( ptr == NULL ) {
+        if (ptr == NULL) {
                 /*  Out of memory */
                 return CCSVCUBE_STATUS_FAILED;
         }
@@ -36,7 +34,6 @@ int realoc_buffer(struct buffer *buf, void* value, size_t sz)
 
         return CCSVCUBE_STATUS_SUCCESS;
 }
-
 
 void destroy_buffer(struct buffer *buf)
 {
@@ -53,8 +50,7 @@ void destroy_buffer(struct buffer *buf)
         buf->sz = 0;
 }
 
-
-int buffer_set_value(struct buffer* buf, const void* value, size_t sz)
+int buffer_set_value(struct buffer *buf, const void *value, size_t sz)
 {
         if (buf->init_flag != CCSVCUBE_STATUS_SUCCESS) {
                 /* buffer not initialised */

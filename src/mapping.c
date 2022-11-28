@@ -5,6 +5,3 @@ struct mapping {
         struct buffer *file_name;
         struct buffer *stream;
 };
-
-
-
