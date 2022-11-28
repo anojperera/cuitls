@@ -16,10 +16,11 @@ int writer_write_file_blocking(struct buffer *buf, const char *fp)
         int fd;
         int stat = CCSVCUBE_STATUS_SUCCESS;
         size_t bw = 0;
+        mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
 
         LOG_MESSAGE("Getting file descriptor");
 
-        fd = open(fp, O_WRONLY | O_CREAT);
+        fd = open(fp, O_WRONLY | O_CREAT, mode);
         if (fd == -1) {
                 LOG_MESSAGE_ARGS("Unable to get a file descriptor :%s\n",
                                  strerror(errno));
