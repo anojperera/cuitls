@@ -14,8 +14,13 @@ int init_buffer(struct buffer *buf, size_t sz, enum buffer_type type)
         buf->init_flag = CCSVCUBE_STATUS_SUCCESS;
         buf->type = type;
         buf->sz = sz;
-        buf->buf = malloc(sz);
-        memset(buf->buf, 0, sz);
+
+        if (sz > 0) {
+                buf->buf = malloc(sz);
+                memset(buf->buf, 0, sz);
+        } else {
+                buf->buf = NULL;
+        }
 
         return CCSVCUBE_STATUS_SUCCESS;
 }
@@ -24,14 +29,21 @@ int realoc_buffer(struct buffer *buf, void *value, size_t sz)
 {
         void *ptr = NULL;
         /*  Check if buffer is initialised */
-        if (check_buffer_init_stat(buf)) {
+        if (!check_buffer_init_stat(buf)) {
                 LOG_MESSAGE("Buffer not initialised");
                 return CCSVCUBE_STATUS_FAILED;
         }
-        ptr = realloc(get_buffer(buf), get_buffer_sz(buf) + sz + 1);
+
+        /*  If the size if zero allocate */
+        if (get_buffer_sz(buf) == 0) {
+                ptr = malloc(sz + 1);
+        } else {
+                ptr = realloc(get_buffer(buf), get_buffer_sz(buf) + sz + 1);
+        }
 
         if (ptr == NULL) {
                 /*  Out of memory */
+                LOG_MESSAGE("Out of memory");
                 return CCSVCUBE_STATUS_FAILED;
         }
 

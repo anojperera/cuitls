@@ -2,6 +2,7 @@
 #define __BUFFER_H__
 
 #include "buffer_types.h"
+#include "status.h"
 #include <stdlib.h>
 
 struct buffer {
@@ -14,8 +15,9 @@ struct buffer {
 #define get_buffer(obj) (obj)->buf
 #define get_buffer_sz(obj) (obj)->sz
 #define set_buffer_ptr(obj, ptr) (obj)->buf = ptr
-#define check_buffer_init_stat(obj) (obj)->init_flag ? 1 : 0
-#define adjust_buffer_sz(obj, sz) (obj)->sz += sz
+#define check_buffer_init_stat(obj)                                            \
+        ((obj)->init_flag == CCSVCUBE_STATUS_SUCCESS ? 1 : 0)
+#define adjust_buffer_sz(obj, size) (obj)->sz += size
 
 /***
  * Initialise the buffer
