@@ -86,7 +86,7 @@ int web_main(int argc, char **argv)
 
         LOG_MESSAGE_ARGS("Starting web parser for %s", uri);
 
-        init_buffer(&buf, 20, buffer_type_unknown);
+        init_buffer(&buf, 0, buffer_type_unknown);
         status = read_remote_uri(uri, &buf);
 
         if (status == CCSVCUBE_STATUS_FAILED) {
