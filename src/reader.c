@@ -129,6 +129,7 @@ int read_remote_uri(const char *uri, struct buffer *buf)
         curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_cb);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, buf);
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, buf);
 
         err = curl_easy_perform(curl);
 
