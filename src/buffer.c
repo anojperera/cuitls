@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include "../inc/buffer.h"
+#include "../inc/log.h"
 #include "../inc/status.h"
 
 int init_buffer(struct buffer *buf, size_t sz, enum buffer_type type)
@@ -21,15 +22,22 @@ int init_buffer(struct buffer *buf, size_t sz, enum buffer_type type)
 
 int realoc_buffer(struct buffer *buf, void *value, size_t sz)
 {
-        void *ptr = realloc(buf->buf, sz + 1);
+        void *ptr = NULL;
+        /*  Check if buffer is initialised */
+        if (check_buffer_init_stat(buf)) {
+                LOG_MESSAGE("Buffer not initialised");
+                return CCSVCUBE_STATUS_FAILED;
+        }
+        ptr = realloc(get_buffer(buf), get_buffer_sz(buf) + sz + 1);
+
         if (ptr == NULL) {
                 /*  Out of memory */
                 return CCSVCUBE_STATUS_FAILED;
         }
 
-        buf->buf = ptr;
+        set_buffer_ptr(buf, ptr);
         memcpy(&(buf->buf[buf->sz]), value, sz);
-        buf->sz += sz;
+        adjust_buffer_sz(buf, sz);
         memset(&buf->buf[buf->sz], 0, 1);
 
         return CCSVCUBE_STATUS_SUCCESS;

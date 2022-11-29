@@ -147,10 +147,20 @@ int read_remote_uri(const char *uri, struct buffer *buf)
 
 size_t write_cb(char *ptr, size_t size, size_t nmemb, void *userdata)
 {
+        struct buffer *buf = NULL;
         size_t realsize = size * nmemb;
-        struct buffer *buf = (struct buffer *)userdata;
+        int stat = CCSVCUBE_STATUS_SUCCESS;
 
-        realoc_buffer(buf, ptr, realsize);
+        if (!userdata) {
+                LOG_MESSAGE("Userdata is not passed to the method");
+                return -1;
+        }
+        buf = (struct buffer *)userdata;
+
+        stat = realoc_buffer(buf, ptr, realsize);
+        if (stat != CCSVCUBE_STATUS_SUCCESS) {
+                return stat;
+        }
 
         return realsize;
 }
