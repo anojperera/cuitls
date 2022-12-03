@@ -4,3 +4,6 @@
 [submodule "externals/uthash"]
 	path = externals/uthash
 	url = git@github.com:troydhanson/uthash.git
+[submodule "externals/facil.io"]
+	path = externals/facil.io
+	url = https://github.com/boazsegev/facil.io.git
