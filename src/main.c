@@ -38,6 +38,16 @@ int main(int argc, char const **argv)
 // Easy HTTP handling
 void on_request(http_s *request)
 {
+        FIOBJ method = request->method;
+        fio_str_info_s method_s = fiobj_obj2cstr(method);
+
+        if (method_s.len == 0) {
+                LOG_MESSAGE("Method string is empty");
+                return;
+        } else {
+                LOG_MESSAGE_ARGS("Method is: %s", method_s.data);
+        }
+
         http_set_cookie(request, .name = "my_cookie", .name_len = 9,
                         .value = "data", .value_len = 4);
         http_set_header(request, HTTP_HEADER_CONTENT_TYPE,
