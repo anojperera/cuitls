@@ -69,24 +69,13 @@ ERROR_HANDLER:
         return CCSVCUBE_STATUS_FAILED;
 }
 
-int read_json_file(const char *file_path, struct buffer *buf, json_object **obj)
+int read_json_from_buf(struct buffer *buf, json_object **obj)
 {
         struct json_tokener *tok = NULL;
         enum json_tokener_error jerr;
 
-        LOG_MESSAGE("Opening JSON file");
-        if (read_file(file_path, buf) == CCSVCUBE_STATUS_FAILED) {
-                LOG_MESSAGE_ARGS("Errors occured while reading %s", file_path);
-                goto ERROR_HANDLER;
-        }
-
         LOG_MESSAGE("Creating JSON tokener");
         tok = json_tokener_new();
-
-        if (tok == NULL) {
-                LOG_MESSAGE("Error creating json_tokener");
-                goto ERROR_HANDLER;
-        }
 
         do {
                 *obj = json_tokener_parse_ex(tok, buf->buf, buf->sz);
@@ -111,6 +100,17 @@ int read_json_file(const char *file_path, struct buffer *buf, json_object **obj)
 
 ERROR_HANDLER:
         return CCSVCUBE_STATUS_FAILED;
+}
+
+int read_json_file(const char *file_path, struct buffer *buf, json_object **obj)
+{
+        LOG_MESSAGE("Opening JSON file");
+        if (read_file(file_path, buf) == CCSVCUBE_STATUS_FAILED) {
+                LOG_MESSAGE_ARGS("Errors occured while reading %s", file_path);
+                return CCSVCUBE_STATUS_FAILED;
+        }
+
+        return read_json_from_buf(buf, obj);
 }
 
 int read_remote_uri(const char *uri, struct buffer *buf)

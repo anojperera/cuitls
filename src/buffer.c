@@ -70,6 +70,12 @@ void destroy_buffer(struct buffer *buf)
         buf->sz = 0;
 }
 
+/***
+ * Set values to the internal buffer
+ * @buf - struct buffer pointer
+ * @value - void pointer
+ * @sz - size of the buffer
+ */
 int buffer_set_value(struct buffer *buf, const void *value, size_t sz)
 {
         if (buf->init_flag != CCSVCUBE_STATUS_SUCCESS) {
