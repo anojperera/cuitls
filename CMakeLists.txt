@@ -31,6 +31,7 @@ add_executable(cutils
   src/mapping.c
   src/reader.c
   src/writer.c
+  src/url_hash.c
   )
 find_package(json-c CONFIG)
 target_link_libraries(cutils PRIVATE curl)
