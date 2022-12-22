@@ -85,27 +85,67 @@ void geo_main(void *req, void *obj)
         struct buffer buf;
         const char tmp_str[] = "This is a string";
         json_object *jobj = NULL;
+        int status = CCSVCUBE_STATUS_SUCCESS;
         struct geojson geo;
-        int argc;
-        char **argv;
+        char *fp, *bf_v;
+        http_s *request = (http_s *)req;
+        fio_str_info_s body;
+        struct buffer b;
+        json_object *json = NULL;
+        json_object *file = NULL;
+        json_object *bf = NULL;
+        json_object *pz = NULL;
 
-        LOG_MESSAGE_ARGS("Number of arguments pased: %i", argc);
-        if (argc < 2) {
-                LOG_MESSAGE("Please pass the file name as an argument");
+        json_bool json_stat;
+        enum json_type jtype;
+
+        if (!request->body) {
+                LOG_MESSAGE("Body is missing in the reuqest");
                 return;
         }
 
-        LOG_MESSAGE("Starting test program");
-        /* initialise the buffer  */
+        body = fiobj_obj2cstr(request->body);
+        if (body.len == 0) {
+                LOG_MESSAGE("Body lenght is zeor");
+                return;
+        }
+        init_buffer(&b, body.len, buffer_type_unknown);
+        buffer_set_value(&b, body.data, body.len);
+        status = read_json_from_buf(&b, &json);
+        jtype = json_object_get_type(json);
+        if (jtype != json_type_object) {
+                LOG_MESSAGE("Body expects a json object at root");
+                return;
+        }
 
-        LOG_MESSAGE("Testing buffer");
-        init_buffer(&buf, 20, buffer_type_str);
-        buffer_set_value(&buf, tmp_str, sizeof(tmp_str));
+        json_stat = json_object_object_get_ex(json, "file", &file);
+        if (!json_stat) {
+                LOG_MESSAGE("Unable to get the name from the json body");
+                return;
+        }
 
-        destroy_buffer(&buf);
+        fp = json_object_get_string(file);
+        if (fp == NULL) {
+                LOG_MESSAGE("Error getting name of the file");
+        } else {
+                LOG_MESSAGE_ARGS("File name for the download: %s", fp);
+        }
+
+        json_stat = json_object_object_get_ex(json, "baseFile", &bf);
+        if (!json_stat) {
+                LOG_MESSAGE("Unable to get the URL from json body");
+                return;
+        }
+
+        bf_v = json_object_get_string(bf);
+        if (bf_v == NULL) {
+                LOG_MESSAGE("Unable to get the uri from json object");
+        } else {
+                LOG_MESSAGE_ARGS("URI %s", bf_v);
+        }
 
         LOG_MESSAGE("Testing JSON reader");
-        if (read_json_file(argv[1], &buf, &jobj) == CCSVCUBE_STATUS_FAILED) {
+        if (read_json_file(fp, &buf, &jobj) == CCSVCUBE_STATUS_FAILED) {
                 LOG_MESSAGE("Failed to parse json");
                 destroy_buffer(&buf);
                 return;
@@ -114,12 +154,13 @@ void geo_main(void *req, void *obj)
         LOG_MESSAGE("Initialising geojson object");
         geojson_init(&geo);
 
-        if (argc > 2) {
-                geo.base_file = argv[2];
-        }
+        geo.base_file = bf_v;
 
-        if (argc > 3) {
-                geo.page_sz = atoi(argv[3]);
+        json_stat = json_object_object_get_ex(json, "baseFile", &pz);
+        if (!json_stat) {
+                LOG_MESSAGE("Unable to get the URL from json body");
+        } else {
+                geo.page_sz = json_object_get_int(pz);
         }
 
         LOG_MESSAGE("Splitting into multiple geojson files");
@@ -145,13 +186,14 @@ void web_main(void *req, void *obj)
         json_object *url = NULL;
         json_bool json_stat;
         enum json_type jtype;
+        fio_str_info_s body;
 
         if (!request->body) {
                 LOG_MESSAGE("Body is missing in the reuqest");
                 return;
         }
 
-        fio_str_info_s body = fiobj_obj2cstr(request->body);
+        body = fiobj_obj2cstr(request->body);
         if (body.len == 0) {
                 LOG_MESSAGE("Body lenght is zeor");
                 return;
